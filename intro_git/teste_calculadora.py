@@ -7,3 +7,6 @@ print(f"Resultado da soma: {resultado}")
 
 resultado_subtracao = calculadora.subtracao(a,b)
 print(f"Resultado da subtração: {resultado_subtracao}")
+
+resultado_multiplicacao = calculadora.multiplicacao(a,b)
+print(f"Resultado da multiplicação: {resultado_multiplicacao}")
