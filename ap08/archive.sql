@@ -17,10 +17,15 @@ DECLARE
     n1 NUMERIC(5,2);
     n2 INTEGER;
     limite_inferior INTEGER := 5;
-    lmite_superior INTEGER := 17;
+    limite_superior INTEGER := 17;
 BEGIN
     n1 := random(); -- 0 <= n1 <1
     RAISE NOTICE '%',n1;
+    n2 := floor(random() *10 +1)::int; -- 1<= n2 <= 10 com type cast para int
+    RAISE NOTICE '%',n2;
+    -- dados dois limites, calcule um número aleatório entre os dois:
+    n2 := floor(random() * (limite_superior - limite_inferior) + 1 + limite_inferior)::int; -- 5 <= n2 <=17
+    RAISE NOTICE '%',n2;
 END;
 $$
 
