@@ -11,9 +11,21 @@ BEGIN
 END
 $$
 
+DO $$
+-- A função random gera valores reais no intervalo 0<= n <1
+DECLARE
+    n1 NUMERIC(5,2);
+    n2 INTEGER;
+    limite_inferior INTEGER := 5;
+    lmite_superior INTEGER := 17;
+BEGIN
+    n1 := random(); -- 0 <= n1 <1
+    RAISE NOTICE '%',n1;
+END;
+$$
+
 --DO
 --$$
 --BEGIN
 --RAISE NOTICE '% + % = %', 2, 2, 2 + 2;
 --END;
-$$
