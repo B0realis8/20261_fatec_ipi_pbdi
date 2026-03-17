@@ -68,3 +68,12 @@ BEGIN
         RAISE NOTICE 'Nenhuma nota gerada';
     END IF;
 END $$
+
+DO $$
+BEGIN
+    RAISE NOTICE 'De 1 a 10, de um em um';
+    FOR i in 1..10 LOOP
+        RAISE NOTICE '%',i;
+    END LOOP;
+END $$
+
