@@ -34,3 +34,24 @@ $$
 --BEGIN
 --RAISE NOTICE '% + % = %', 2, 2, 2 + 2;
 --END;
+
+DO $$
+DECLARE
+--testar
+--22/10/2022: valida
+--29/02/2020: 2020 é bissexto, válida
+--29/02/2021: inválida
+--28/02/2021: válida
+--31/06/2021: inválida
+data INT := 31062021;
+dia INT;
+mes INT;
+ano INT;
+data_valida BOOL := TRUE;
+BEGIN
+dia := data / 1000000;
+mes := data % 1000000 / 10000;
+ano := data % 10000;
+RAISE NOTICE 'A data é %/%/%', dia, mes, ano;
+RAISE NOTICE 'Vejamos se é ela é válida...';
+END
