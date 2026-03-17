@@ -1,3 +1,11 @@
+CREATE OR REPLACE FUNCTION valor_aleatorio_entre (lim_inferior INT, lim_superior
+INT) RETURNS INT AS
+$$
+BEGIN
+RETURN FLOOR(RANDOM() * (lim_superior - lim_inferior + 1) + lim_inferior)::INT;
+END;
+$$ LANGUAGE plpgsql;
+
 DO $$
 DECLARE
     contador INT = 0;
@@ -36,4 +44,27 @@ BEGIN
             CONTINUE externo WHEN j > 5;
         END LOOP;
     END LOOP;
+END $$
+
+DO $$ -- Nessa função, quando o valor selecionado é -1 o loop é interrompido e a média é calculada com base na quantidade de valores que foram gerados antes do -1 ser selecionado
+DECLARE
+    nota INT;
+    media NUMERIC(10,2) := 0;
+    contador INT := 0;
+
+BEGIN
+    SELECT valor_aleatorio_entre(0, 11) - 1 INTO nota;
+
+    WHILE nota >= 0 LOOP
+        RAISE NOTICE 'Nota desse aluno(a): %', nota;
+        media := media + nota;
+        contador := contador +1;
+        SELECT valor_aleatorio_entre(0, 11) - 1 INTO nota;
+
+    END LOOP;
+    IF contador > 0 THEN
+        RAISE NOTICE 'Média: %', media/contador;
+    ELSE
+        RAISE NOTICE 'Nenhuma nota gerada';
+    END IF;
 END $$
