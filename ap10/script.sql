@@ -70,10 +70,21 @@ BEGIN
 END $$
 
 DO $$
-BEGIN
+BEGIN -- Nessa função, não declaramos o i
     RAISE NOTICE 'De 1 a 10, de um em um';
-    FOR i in 1..10 LOOP
+    FOR i IN 1..10 LOOP
         RAISE NOTICE '%',i;
     END LOOP;
+
+    RAISE NOTICE 'E agora...?';
+    FOR i IN REVERSE 10..1 LOOP -- IN REVERSE reverte a contagem
+        RAISE NOTICE '%', i;
+    END LOOP;
+
+    RAISE NOTICE 'De 1 a 50, de dois em dois';
+    FOR i IN 1..50 BY 2 LOOP
+        RAISE NOTICE '%',i;
+    END LOOP;
+
 END $$
 
