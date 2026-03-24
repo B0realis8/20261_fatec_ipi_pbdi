@@ -31,3 +31,23 @@ BEGIN
     CLOSE cur_nomes_youtubers;
 END;
 $$
+
+--Exibir nomes dos youtubers que começaram à partir de um ano específico. desafio: fazer com query dinâmica. O crursor tem que ser não vinculado
+DO $$
+DECLARE
+    cur_nomes_youtubers REFCURSOR;
+    v_nome_tabela VARCHAR := 'tb_top_youtubers';
+    v_youtubers VARCHAR(200);
+    ano INT := 2010;
+BEGIN
+    OPEN cur_nomes_youtubers FOR EXECUTE
+    format('SELECT youtuber FROM %s WHERE started >= $1 ',v_nome_tabela) USING ano;
+    LOOP
+        -- Reuperando os dados e inserindo na variável
+        FETCH cur_nomes_youtubers INTO v_youtubers;
+        EXIT WHEN NOT FOUND;
+        RAISE NOTICE '%', v_youtubers;
+    END LOOP;
+    CLOSE cur_nomes_youtubers;
+END;
+$$
