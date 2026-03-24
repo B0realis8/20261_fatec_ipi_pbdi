@@ -51,3 +51,25 @@ BEGIN
     CLOSE cur_nomes_youtubers;
 END;
 $$
+
+DO $$
+    DECLARE
+        --cursor vinculado (bound)
+        cur_nomes_e_inscritos CURSOR FOR SELECT youtuber, subscribers FROM
+        tb_top_youtubers;
+        --capaz de abrigar uma tupla inteira
+        --tupla.youtuber nos dá o nome do youtuber
+        --tupla.subscribers nos dá o número de inscritos
+        tupla RECORD;
+        resultado TEXT DEFAULT ''; --por padrão, inicia como um texto vazio
+    BEGIN
+        
+        FETCH cur_nomes_e_inscritos INTO tupla;
+        WHILE FOUND LOOP
+            resultado := resultado || tupla.youtuber || ':' || tupla.subscribers || ',';
+            FETCH cur_nomes_e_inscritos INTO tupla;
+        END LOOP;
+    CLOSE cur_nomes_e_inscritos;
+        RAISE NOTICE '%', resultado;
+END;
+$$
