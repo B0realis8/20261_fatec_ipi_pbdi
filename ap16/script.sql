@@ -53,23 +53,22 @@ END;
 $$
 
 DO $$
-    DECLARE
-        --cursor vinculado (bound)
-        cur_nomes_e_inscritos CURSOR FOR SELECT youtuber, subscribers FROM
-        tb_top_youtubers;
-        --capaz de abrigar uma tupla inteira
-        --tupla.youtuber nos dá o nome do youtuber
-        --tupla.subscribers nos dá o número de inscritos
-        tupla RECORD;
-        resultado TEXT DEFAULT ''; --por padrão, inicia como um texto vazio
+DECLARE
+    --cursor vinculado (bound)
+    cur_nomes_e_inscritos CURSOR FOR SELECT youtuber, subscribers FROM tb_top_youtubers;
+    --capaz de abrigar uma tupla inteira
+    --tupla.youtuber nos dá o nome do youtuber
+    --tupla.subscribers nos dá o número de inscritos
+    tupla RECORD;
+    resultado TEXT DEFAULT ''; --por padrão, inicia como um texto vazio
     BEGIN
-        
-        FETCH cur_nomes_e_inscritos INTO tupla;
-        WHILE FOUND LOOP
-            resultado := resultado || tupla.youtuber || ':' || tupla.subscribers || ',';
+        OPEN cur_nomes_e_inscritos;
             FETCH cur_nomes_e_inscritos INTO tupla;
-        END LOOP;
-    CLOSE cur_nomes_e_inscritos;
+            WHILE FOUND LOOP
+                resultado := resultado || tupla.youtuber || ':' || tupla.subscribers || ','; --aqui o resultado serve para que a cada iteração, a variável mantenha o texto anterior e contatene com o próximo
+                FETCH cur_nomes_e_inscritos INTO tupla;
+            END LOOP;
+        CLOSE cur_nomes_e_inscritos;
         RAISE NOTICE '%', resultado;
 END;
 $$
