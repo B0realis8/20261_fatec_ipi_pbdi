@@ -72,3 +72,26 @@ DECLARE
         RAISE NOTICE '%', resultado;
 END;
 $$
+
+DO $$
+    DECLARE
+        v_ano INT := 2010;
+        v_inscritos INT := 60000000;
+        cur_ano_inscritos CURSOR (ano INT, inscritos INT) FOR SELECT youtuber FROM
+        tb_top_youtubers WHERE started >= ano AND subscribers >= inscritos;
+        v_youtuber VARCHAR(200);
+    BEGIN
+        --execute apenas um dos dois comandos OPEN a seguir
+        -- passando argumentos pela ordem
+        -- OPEN cur_ano_inscritos (v_ano, v_inscritos);
+        --passando argumentos por nome
+        OPEN cur_ano_inscritos (inscritos := v_inscritos, ano := v_ano);
+        LOOP
+            FETCH cur_ano_inscritos INTO v_youtuber;
+            EXIT WHEN NOT FOUND;
+            RAISE NOTICE '%', v_youtuber;
+        END LOOP;
+        CLOSE cur_ano_inscritos;
+END;
+$$
+
