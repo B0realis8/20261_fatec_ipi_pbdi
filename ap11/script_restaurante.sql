@@ -1,4 +1,4 @@
--- Active: 1742298013041@@127.0.0.1@5432@20261_fatec_ipi_pbdi_renanantonio
+-- Active: 1775146451821@@127.0.0.1@5432@pbdi_20261
 DROP TABLE tb_cliente;
 CREATE TABLE tb_cliente (
     cod_cliente SERIAL PRIMARY KEY,
@@ -92,5 +92,94 @@ SELECT c.cod_cliente FROM tb_cliente c WHERE nome LIKE 'João da Silva' INTO cod
 --cria o pedido
 CALL sp_criar_pedido (cod_pedido, cod_cliente);
 RAISE NOTICE 'Código do pedido recém criado: %', cod_pedido;
+END;
+$$
+
+-- adicionar um item a um pedido
+CREATE OR REPLACE PROCEDURE sp_adicionar_item_a_pedido (IN cod_item INT, IN
+cod_pedido INT)
+LANGUAGE plpgsql
+AS $$
+BEGIN--insere novo item
+INSERT INTO tb_item_pedido (cod_item, cod_pedido) VALUES ($1, $2);--atualiza data de modificação do pedido
+UPDATE tb_pedido p SET data_modificacao = CURRENT_TIMESTAMP WHERE
+p.cod_pedido = $2;
+END;
+$$;
+CALL sp_adicionar_item_a_pedido (1, 1);
+SELECT * FROM tb_item_pedido;
+SELECT * FROM tb_pedido;
+
+--calcular valor total de um pedido
+DROP PROCEDURE sp_calcular_valor_de_um_pedido;
+CREATE OR REPLACE PROCEDURE sp_calcular_valor_de_um_pedido (IN p_cod_pedido
+INT, OUT valor_total INT)
+LANGUAGE plpgsql
+AS $$
+    BEGIN
+        SELECT SUM(valor) FROM
+        tb_pedido p
+        INNER JOIN tb_item_pedido ip ON
+        p.cod_pedido = ip.cod_pedido
+        INNER JOIN tb_item i ON
+        i.cod_item = ip.cod_item
+        WHERE p.cod_pedido = $1
+        INTO $2;
+    END;
+    $$;
+DO $$
+    DECLARE
+        valor_total INT;
+    BEGIN
+        CALL sp_calcular_valor_de_um_pedido(1, valor_total);
+        RAISE NOTICE 'Total do pedido %: R$%', 1, valor_total;
+    END;
+$$
+
+CREATE OR REPLACE PROCEDURE sp_fechar_pedido (IN valor_a_pagar INT, IN
+cod_pedido INT)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    valor_total INT;
+BEGIN--vamos verificar se o valor_a_pagar é suficiente
+    CALL sp_calcular_valor_de_um_pedido (cod_pedido, valor_total);
+        IF valor_a_pagar < valor_total THEN
+            RAISE 'R$% insuficiente para pagar a conta de R$%', valor_a_pagar,
+            valor_total;
+        ELSE
+            UPDATE tb_pedido p SET
+            data_modificacao = CURRENT_TIMESTAMP,
+            status = 'fechado'
+            WHERE p.cod_pedido = $2;
+        END IF;
+END;
+$$;
+DO $$
+BEGIN
+    CALL sp_fechar_pedido(200, 1);
+END;
+$$;
+SELECT * FROM tb_pedido;
+
+CREATE OR REPLACE PROCEDURE sp_calcular_troco (OUT troco INT, IN valor_a_pagar
+INT, IN valor_total INT)
+LANGUAGE plpgsql
+AS $$
+    BEGIN
+        troco := valor_a_pagar - valor_total;
+    END;
+    $$;
+DO
+$$
+DECLARE
+    troco INT;
+    valor_total INT;
+    valor_a_pagar INT := 100;
+BEGIN
+    CALL sp_calcular_valor_de_um_pedido(1, valor_total);
+    CALL sp_calcular_troco (troco, valor_a_pagar, valor_total);
+    RAISE NOTICE 'A conta foi de R$% e você pagou %, portanto, seu troco é de R$%.',
+    valor_total, valor_a_pagar, troco;
 END;
 $$
