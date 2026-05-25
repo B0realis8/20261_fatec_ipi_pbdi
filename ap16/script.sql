@@ -32,7 +32,7 @@ BEGIN
 END;
 $$
 
---Exibir nomes dos youtubers que começaram à partir de um ano específico. desafio: fazer com query dinâmica. O crursor tem que ser não vinculado
+--Exibir nomes dos youtubers que começaram à partir de um ano específico. desafio: fazer com query dinâmica. O cursor tem que ser não vinculado
 DO $$
 DECLARE
     cur_nomes_youtubers REFCURSOR;
@@ -95,3 +95,29 @@ DO $$
 END;
 $$
 
+
+DO $$
+DECLARE
+    cur_delete REFCURSOR;
+    tupla RECORD;
+BEGIN-- scroll para poder voltar ao início
+    OPEN  cur_delete SCROLL FOR
+    SELECT
+    *
+    FROM
+    tb_top_youtubers;
+        LOOP
+            FETCH cur_delete INTO tupla;
+            EXIT WHEN NOT FOUND;
+            IF tupla.video_count IS NULL THEN
+                DELETE FROM tb_top_youtubers WHERE CURRENT OF cur_delete;
+            END IF;
+        END LOOP;-- loop para exibir item a item, de baixo para cima
+    LOOP
+        FETCH BACKWARD FROM cur_delete INTO tupla;
+        EXIT WHEN NOT FOUND;
+        RAISE NOTICE '%', tupla;
+    END LOOP;
+    CLOSE cur_delete;
+END;
+$$
