@@ -140,4 +140,34 @@ BEGIN
     RAISE NOTICE '%', format('Conta com saldo R$%s%s foi aberta', v_saldo, CASE
     WHEN v_resultado THEN '' ELSE ' não' END);
 END;
+$$;
+
+
+--routine se aplica a funções e procedimentos
+DROP ROUTINE IF EXISTS fn_depositar;
+CREATE OR REPLACE FUNCTION fn_depositar (IN p_cod_cliente INT, IN p_cod_conta INT,
+IN p_valor NUMERIC(10, 2)) RETURNS NUMERIC(10, 2)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_saldo_resultante NUMERIC(10, 2);
+BEGIN
+    UPDATE tb_conta SET saldo = saldo + p_valor WHERE cod_cliente = p_cod_cliente
+    AND cod_conta = p_cod_conta;
+    SELECT saldo FROM tb_conta c WHERE c.cod_cliente = p_cod_cliente AND
+    c.cod_conta = p_cod_conta INTO v_saldo_resultante;
+    RETURN v_saldo_resultante;
+END;
+$$;
+DO $$
+DECLARE
+    v_cod_cliente INT := 1;
+    v_cod_conta INT := 2;
+    v_valor NUMERIC(10, 2) := 200;
+    v_saldo_resultante NUMERIC (10, 2);
+BEGIN
+    SELECT fn_depositar (v_cod_cliente, v_cod_conta, v_valor) INTO
+    v_saldo_resultante;
+    RAISE NOTICE '%', format('Após depositar R$%s, o saldo resultante é de R$%s',v_valor, v_saldo_resultante);
+END;
 $$
