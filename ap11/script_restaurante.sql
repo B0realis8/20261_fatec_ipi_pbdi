@@ -56,11 +56,11 @@ codigo INT DEFAULT NULL)
 LANGUAGE plpgsql
 AS $$
 BEGIN
-IF codigo IS NULL THEN
-INSERT INTO tb_cliente (nome) VALUES (nome);
-ELSE
-INSERT INTO tb_cliente (codigo, nome) VALUES (codigo, nome);
-END IF;
+    IF codigo IS NULL THEN
+        INSERT INTO tb_cliente (nome) VALUES (nome);
+        ELSE
+        INSERT INTO tb_cliente (codigo, nome) VALUES (codigo, nome);
+    END IF;
 END;
 $$;
 
